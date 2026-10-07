@@ -3,8 +3,10 @@ package io.github.rpiu.copilot.creditusage
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.StatusBarWidgetFactory
@@ -63,8 +65,8 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
 
     override fun getText(): String = usage?.let {
         val usedCredits = it.entitlement - it.quotaRemaining
-        "Copilot: ${usedCredits.display()} / ${it.entitlement.display()} credits (${it.percentRemaining.display()}% remaining)"
-    } ?: "Copilot: unavailable"
+        "Usage: ${usedCredits.display()} / ${it.entitlement.display()} credits (${it.percentRemaining.display()}%)"
+    } ?: "Usage: unavailable"
 
     override fun getAlignment(): Float = Component.CENTER_ALIGNMENT
 
@@ -118,7 +120,25 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
         menu.add(JMenuItem("Set custom interval...").apply {
             addActionListener { promptForRefreshInterval() }
         })
+        menu.addSeparator()
+        menu.add(JMenuItem("Open Plugin Log").apply {
+            addActionListener { openPluginLog() }
+        })
         menu.show(event.component, event.x, event.y)
+    }
+
+    private fun openPluginLog() {
+        val pluginLogFile = CopilotUsageMonitorLog.currentLogFile
+        val virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(pluginLogFile)
+        if (virtualFile == null) {
+            Messages.showErrorDialog(
+                project,
+                "The plugin log file is not available:\n$pluginLogFile",
+                "Plugin Log Unavailable"
+            )
+            return
+        }
+        FileEditorManager.getInstance(project).openFile(virtualFile, true)
     }
 
     private fun promptForRefreshInterval() {

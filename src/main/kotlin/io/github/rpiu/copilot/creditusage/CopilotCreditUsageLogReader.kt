@@ -7,7 +7,6 @@ import com.google.gson.JsonParser
 import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.ApplicationNamesInfo
 import com.intellij.openapi.application.PathManager
-import com.intellij.openapi.diagnostic.Logger
 import java.io.IOException
 import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
@@ -17,7 +16,7 @@ import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.attribute.FileTime
 
-private val LOG = Logger.getInstance(CopilotCreditUsageLogReader::class.java)
+private val LOG = CopilotUsageMonitorLog
 
 internal class CopilotCreditUsageLogReader(
     internal val logFile: Path = defaultLogFile()
