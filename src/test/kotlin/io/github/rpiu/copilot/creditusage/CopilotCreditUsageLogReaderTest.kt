@@ -50,6 +50,7 @@ class CopilotCreditUsageLogReaderTest {
                 ),
                 usage
             )
+            assertEquals(BigDecimal("18.5"), usage?.percentUsed)
         } finally {
             Files.deleteIfExists(log)
         }
@@ -71,6 +72,7 @@ class CopilotCreditUsageLogReaderTest {
             assertEquals(BigDecimal("2037.5"), usage?.quotaRemaining)
             assertEquals(BigDecimal("2500"), usage?.entitlement)
             assertEquals(BigDecimal("81.5"), usage?.percentRemaining)
+            assertEquals(BigDecimal("18.5"), usage?.percentUsed)
         } finally {
             Files.deleteIfExists(log)
         }

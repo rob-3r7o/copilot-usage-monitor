@@ -68,8 +68,8 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
 
     override fun getText(): String = usage?.let {
         val usedCredits = it.entitlement - it.quotaRemaining
-        "Usage: ${usedCredits.display()} / ${it.entitlement.display()} credits (${it.percentRemaining.display()}%)"
-    } ?: "Usage: unavailable"
+        "Used: ${usedCredits.display()} / ${it.entitlement.display()} credits (${it.percentUsed.display()}%)"
+    } ?: "Used: unavailable"
 
     override fun getAlignment(): Float = Component.CENTER_ALIGNMENT
 
@@ -178,7 +178,10 @@ internal data class CopilotCreditUsage(
     val quotaRemaining: BigDecimal,
     val entitlement: BigDecimal,
     val percentRemaining: BigDecimal
-)
+) {
+    val percentUsed: BigDecimal
+        get() = BigDecimal("100").subtract(percentRemaining)
+}
 
 private fun BigDecimal.display(): String =
     setScale(1, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
