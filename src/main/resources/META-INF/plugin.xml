@@ -1,0 +1,17 @@
+<idea-plugin>
+    <id>io.github.rpiu.copilot.creditusage</id>
+    <name>Copilot Credit Usage</name>
+    <vendor>Copilot Usage Monitor</vendor>
+    <description><![CDATA[
+        Shows GitHub Copilot premium credit usage in the CLion status bar by reading the local Copilot data from idea.log.
+        The plugin does not make network requests or access Copilot credentials.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <statusBarWidgetFactory
+            id="CopilotCreditUsage"
+            implementation="io.github.rpiu.copilot.creditusage.CopilotCreditUsageWidgetFactory"/>
+    </extensions>
+</idea-plugin>
