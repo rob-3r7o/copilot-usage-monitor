@@ -63,6 +63,9 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
 
     override fun getPresentation(): StatusBarWidget.WidgetPresentation = this
 
+    @Suppress("OVERRIDE_DEPRECATION")
+    override fun getPresentation(type: StatusBarWidget.PlatformType): StatusBarWidget.WidgetPresentation = this
+
     override fun getText(): String = usage?.let {
         val usedCredits = it.entitlement - it.quotaRemaining
         "Usage: ${usedCredits.display()} / ${it.entitlement.display()} credits (${it.percentRemaining.display()}%)"

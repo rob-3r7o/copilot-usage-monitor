@@ -4,8 +4,6 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParseException
 import com.google.gson.JsonParser
-import com.intellij.openapi.application.ApplicationInfo
-import com.intellij.openapi.application.ApplicationNamesInfo
 import com.intellij.openapi.application.PathManager
 import java.io.IOException
 import java.math.BigDecimal
@@ -170,7 +168,5 @@ internal class CopilotCreditUsageLogReader(
 }
 
 private fun defaultLogFile(): Path {
-    val pathSelector = PathManager.getPathsSelector()
-        ?: ApplicationNamesInfo.getInstance().productName + ApplicationInfo.getInstance().versionName
-    return Path.of(PathManager.getDefaultLogPathFor(pathSelector), "idea.log")
+    return Path.of(PathManager.getLogPath(), "idea.log")
 }
