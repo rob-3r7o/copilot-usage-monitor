@@ -32,11 +32,10 @@ internal class CopilotCreditUsageLogReader(
         } catch (_: NoSuchFileException) {
             LOG.warn("Copilot credit log does not exist: $logFile")
             cachedFileState = null
-            cachedUsage = null
-            return null
+            return cachedUsage
         } catch (e: IOException) {
             LOG.warn("Could not inspect the Copilot credit log at $logFile", e)
-            return null
+            return cachedUsage
         }
 
         if (fileState == cachedFileState) {
@@ -65,16 +64,17 @@ internal class CopilotCreditUsageLogReader(
             }
         } catch (_: NoSuchFileException) {
             cachedFileState = null
-            cachedUsage = null
-            return null
+            return cachedUsage
         } catch (e: IOException) {
             LOG.warn("Could not read the Copilot credit log at $logFile", e)
-            return null
+            return cachedUsage
         }
 
         cachedFileState = fileState
-        cachedUsage = latestUsage
-        return latestUsage
+        if (latestUsage != null) {
+            cachedUsage = latestUsage
+        }
+        return cachedUsage
     }
 
     private fun parseLine(line: String): CopilotCreditUsage? {
