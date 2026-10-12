@@ -1,8 +1,11 @@
 package io.github.rpiu.copilot.creditusage
 
 import java.math.BigDecimal
+import java.nio.file.Files
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class CopilotCreditUsageWidgetTest {
     private val usage = CopilotCreditUsage(
@@ -41,5 +44,25 @@ class CopilotCreditUsageWidgetTest {
             "Usage hidden",
             formatUsageText(usage, showCreditUsage = false, showPercentUsed = false)
         )
+    }
+
+    @Test
+    fun `plugin log is unavailable when it does not exist`() {
+        val directory = Files.createTempDirectory("copilot-plugin-log")
+        try {
+            assertFalse(isPluginLogAvailable(directory.resolve("missing.log")))
+        } finally {
+            Files.deleteIfExists(directory)
+        }
+    }
+
+    @Test
+    fun `plugin log is available when it is a readable file`() {
+        val log = Files.createTempFile("copilot-plugin-log", ".log")
+        try {
+            assertTrue(isPluginLogAvailable(log))
+        } finally {
+            Files.deleteIfExists(log)
+        }
     }
 }

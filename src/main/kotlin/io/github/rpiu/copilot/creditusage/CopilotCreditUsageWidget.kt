@@ -16,6 +16,8 @@ import java.awt.Component
 import java.awt.event.MouseEvent
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.nio.file.Files
+import java.nio.file.Path
 import javax.swing.JCheckBoxMenuItem
 import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
@@ -80,7 +82,7 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
     override fun getAlignment(): Float = Component.CENTER_ALIGNMENT
 
     override fun getTooltipText(): String =
-        "Reading credits from ${logReader.logFile} every ${refreshIntervalMs / 1_000} seconds. Click to change."
+        "Reading Copilot credits from the IDE log every ${refreshIntervalMs / 1_000} seconds. Click to change."
 
     override fun getClickConsumer(): Consumer<MouseEvent> = Consumer(::showRefreshMenu)
 
@@ -146,6 +148,7 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
         })
         menu.addSeparator()
         menu.add(JMenuItem("Open Plugin Log").apply {
+            isEnabled = isPluginLogAvailable(CopilotUsageMonitorLog.currentLogFile)
             addActionListener { openPluginLog() }
         })
         menu.show(event.component, event.x, event.y)
@@ -194,6 +197,9 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
         statusBar?.updateWidget(WIDGET_ID)
     }
 }
+
+internal fun isPluginLogAvailable(path: Path): Boolean =
+    Files.isRegularFile(path) && Files.isReadable(path)
 
 internal fun formatUsageText(
     usage: CopilotCreditUsage?,
