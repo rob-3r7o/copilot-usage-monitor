@@ -74,9 +74,6 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
 
     override fun getPresentation(): StatusBarWidget.WidgetPresentation = this
 
-    @Suppress("OVERRIDE_DEPRECATION")
-    override fun getPresentation(type: StatusBarWidget.PlatformType): StatusBarWidget.WidgetPresentation = this
-
     override fun getText(): String = formatUsageText(usage, showCreditUsage, showPercentUsed)
 
     override fun getAlignment(): Float = Component.CENTER_ALIGNMENT
