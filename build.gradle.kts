@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.rpiu"
-version = "0.0.7"
+version = "0.0.8"
 
 repositories {
     mavenCentral()
@@ -22,6 +22,10 @@ dependencies {
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-jvm-default=no-compatibility")
+    }
+
     jvmToolchain(21)
 }
 
