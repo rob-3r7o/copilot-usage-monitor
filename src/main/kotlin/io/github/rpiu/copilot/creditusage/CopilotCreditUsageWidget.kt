@@ -162,7 +162,7 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
             )
             return
         }
-        FileEditorManager.getInstance(project).openFile(virtualFile, true)
+        FileEditorManager.getInstance(project).openFile(virtualFile)
     }
 
     private fun promptForRefreshInterval() {
