@@ -16,11 +16,14 @@ import java.awt.Component
 import java.awt.event.MouseEvent
 import java.math.BigDecimal
 import java.math.RoundingMode
+import javax.swing.JCheckBoxMenuItem
 import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
 
 private const val WIDGET_ID = "CopilotCreditUsage"
 private const val REFRESH_INTERVAL_KEY = "copilot.creditUsage.refreshIntervalSeconds"
+private const val SHOW_CREDIT_USAGE_KEY = "copilot.creditUsage.showCreditUsage"
+private const val SHOW_PERCENT_USED_KEY = "copilot.creditUsage.showPercentUsed"
 private const val DEFAULT_REFRESH_INTERVAL_SECONDS = 10
 private const val MIN_REFRESH_INTERVAL_SECONDS = 1
 private const val MAX_REFRESH_INTERVAL_SECONDS = 3_600
@@ -42,6 +45,12 @@ class CopilotCreditUsageWidgetFactory : StatusBarWidgetFactory {
 class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, StatusBarWidget.TextPresentation {
     private val logReader = CopilotCreditUsageLogReader()
     private val alarm = Alarm(Alarm.ThreadToUse.POOLED_THREAD, project)
+
+    @Volatile
+    private var showCreditUsage = PropertiesComponent.getInstance().getBoolean(SHOW_CREDIT_USAGE_KEY, true)
+
+    @Volatile
+    private var showPercentUsed = PropertiesComponent.getInstance().getBoolean(SHOW_PERCENT_USED_KEY, true)
 
     @Volatile
     private var refreshIntervalMs = PropertiesComponent.getInstance()
@@ -66,10 +75,7 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
     @Suppress("OVERRIDE_DEPRECATION")
     override fun getPresentation(type: StatusBarWidget.PlatformType): StatusBarWidget.WidgetPresentation = this
 
-    override fun getText(): String = usage?.let {
-        val usedCredits = it.entitlement - it.quotaRemaining
-        "Used: ${usedCredits.display()} / ${it.entitlement.display()} credits (${it.percentUsed.display()}%)"
-    } ?: "Used: unavailable"
+    override fun getText(): String = formatUsageText(usage, showCreditUsage, showPercentUsed)
 
     override fun getAlignment(): Float = Component.CENTER_ALIGNMENT
 
@@ -124,6 +130,21 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
             addActionListener { promptForRefreshInterval() }
         })
         menu.addSeparator()
+        menu.add(JCheckBoxMenuItem("Usage: x/y credits", showCreditUsage).apply {
+            addActionListener {
+                showCreditUsage = isSelected
+                PropertiesComponent.getInstance().setValue(SHOW_CREDIT_USAGE_KEY, showCreditUsage)
+                statusBar?.updateWidget(WIDGET_ID)
+            }
+        })
+        menu.add(JCheckBoxMenuItem("(x% credits used)", showPercentUsed).apply {
+            addActionListener {
+                showPercentUsed = isSelected
+                PropertiesComponent.getInstance().setValue(SHOW_PERCENT_USED_KEY, showPercentUsed)
+                statusBar?.updateWidget(WIDGET_ID)
+            }
+        })
+        menu.addSeparator()
         menu.add(JMenuItem("Open Plugin Log").apply {
             addActionListener { openPluginLog() }
         })
@@ -172,6 +193,25 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
         scheduleRefresh(0, pollGeneration)
         statusBar?.updateWidget(WIDGET_ID)
     }
+}
+
+internal fun formatUsageText(
+    usage: CopilotCreditUsage?,
+    showCreditUsage: Boolean,
+    showPercentUsed: Boolean
+): String {
+    if (usage == null) return "Used: unavailable"
+
+    val visibleParts = buildList {
+        if (showCreditUsage) {
+            val usedCredits = usage.entitlement - usage.quotaRemaining
+            add("Usage: ${usedCredits.display()}/${usage.entitlement.display()} credits")
+        }
+        if (showPercentUsed) {
+            add("(${usage.percentUsed.display()}% credits used)")
+        }
+    }
+    return visibleParts.takeIf { it.isNotEmpty() }?.joinToString(" ") ?: "Usage hidden"
 }
 
 internal data class CopilotCreditUsage(
