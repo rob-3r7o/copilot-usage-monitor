@@ -3,7 +3,6 @@ package io.github.rpiu.copilot.creditusage
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
@@ -176,7 +175,7 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
             )
             return
         }
-        FileEditorManager.getInstance(project).openFileEditor(OpenFileDescriptor(project, virtualFile), true)
+        OpenFileDescriptor(project, virtualFile).navigate(true)
     }
 
     private fun promptForRefreshInterval() {
