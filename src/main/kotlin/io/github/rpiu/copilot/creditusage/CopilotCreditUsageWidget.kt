@@ -4,6 +4,7 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -175,7 +176,7 @@ class CopilotCreditUsageWidget(private val project: Project) : StatusBarWidget, 
             )
             return
         }
-        FileEditorManager.getInstance(project).openFile(virtualFile, true)
+        FileEditorManager.getInstance(project).openEditor(OpenFileDescriptor(project, virtualFile), true)
     }
 
     private fun promptForRefreshInterval() {
